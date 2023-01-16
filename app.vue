@@ -37,17 +37,22 @@
                       <input type="text" id="help" v-model="formkit.help" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
                     </div>
 
+                    <div class="col-span-4 sm:col-span-4">
+                      <label for="defaultValue" class="block text-sm font-medium text-gray-700">Default Value</label>
+                      <input type="text" id="defaultValue" v-model="formkit.value" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
+                    </div>
+
                     <div class="col-span-4 sm:col-span-2">
-                      <label for="validatorType" class="block text-sm font-medium text-gray-700">Validators</label>
-                      <select id="validatorType" v-model="formkit.validatorType" @change="setValidator"  class="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm">
+                      <label for="validationType" class="block text-sm font-medium text-gray-700">Validators</label>
+                      <select id="validationType" v-model="formkit.validationType" @change="setValidator"  class="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm">
                         <option value="">-- Choose --</option>
-                        <option v-for="validator in validators" :key="validator.name" :value="validator.value">{{ validator.name }}</option>
+                        <option v-for="validation in validations" :key="validation.name" :value="validation.value">{{ validation.name }}</option>
                       </select>
                     </div>
 
                     <div class="col-span-4 sm:col-span-2">
-                      <label for="validator" class="block text-sm font-medium text-gray-700">&nbsp;</label>
-                      <input type="text" id="validator" v-model="formkit.validator" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
+                      <label for="validation" class="block text-sm font-medium text-gray-700">&nbsp;</label>
+                      <input type="text" id="validation" v-model="formkit.validation" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
                     </div>
 
                     <div class="col-span-4 sm:col-span-2 relative flex items-start">
@@ -120,7 +125,7 @@ const inputTypes = [
   'telephone',
 ]
 
-const validators = [
+const validations = [
   {value: 'accepted', name: 'accepted'},
   {value: 'alpha', name : 'alpha'},
   {value: 'alphanumeric', name : 'alphanumeric'},
@@ -150,8 +155,9 @@ const formkit = reactive({
   name: '',
   label: '',
   help: '',
-  validatorType: '',
-  validator: '',
+  validationType: '',
+  validation: '',
+  value: '',
   if: false,
   ifInput: '',
   ifValue: '',
@@ -164,7 +170,8 @@ const formkitJson = computed(() => {
     'name': formkit.name,
     'label': formkit.label,
     'help': formkit.help,
-    'validator': formkit.validator,
+    'validation': formkit.validation,
+    'value': formkit.value,
   };
 
   if (formkit.if) {
@@ -172,7 +179,14 @@ const formkitJson = computed(() => {
   }
 
   if (formkit.type == 'select' || formkit.type == 'radio' || formkit.type == 'checkbox') {
-    json.options = formkit.options.filter(option => option.key && option.value);
+    json.options = {};
+    for (const option of formkit.options.filter(option => option.key || option.value)) {
+      json.options[option.key] = option.value;
+    }
+    
+    if (json.validation != '') json.validation += `|`;
+
+    json.validation += `is:${formkit.options.filter(option => option.key || option.value).map(option => option.key).join(',')}`;
   }
 
   copyToClipboard(JSON.stringify(json, null, 2));
@@ -198,7 +212,7 @@ const setOptionValue = (key) => {
 }
 
 const setValidator = () => {
-  formkit.validator += ((formkit.validator == '') ? '' : '|') + formkit.validatorType;
+  formkit.validation += ((formkit.validation == '') ? '' : '|') + formkit.validationType;
 }
 
 function snakeToPhrase(snake) {
