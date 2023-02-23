@@ -33,7 +33,17 @@
                     </div>
 
                     <div class="col-span-4 sm:col-span-2">
+                      <label for="help" class="block text-sm font-medium text-gray-700">Placeholder</label>
+                      <input type="text" id="help" v-model="formkit.placeholder" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
+                    </div>
+
+                    <div class="col-span-4 sm:col-span-2">
                       <label for="help" class="block text-sm font-medium text-gray-700">Help Text</label>
+                      <input type="text" id="help" v-model="formkit.help" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
+                    </div>
+
+                    <div class="col-span-4 sm:col-span-4">
+                      <label for="help" class="block text-sm font-medium text-gray-700">Help Long</label>
                       <input type="text" id="help" v-model="formkit.help" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
                     </div>
 
@@ -155,12 +165,14 @@ const formkit = reactive({
   name: '',
   label: '',
   help: '',
+  placeholder: '',
   validationType: '',
   validation: '',
   value: '',
   if: false,
   ifInput: '',
   ifValue: '',
+  helpLong: '',
   options: [{key: '', value: ''}],
 });
 
@@ -171,17 +183,24 @@ const formkitJson = computed(() => {
     'label': formkit.label,
     'help': formkit.help,
     'validation': formkit.validation,
+    'placeholder': formkit.placeholder,
     'value': formkit.value,
   };
+
+  if (formkit.helpLong != '') {
+    json.helpLong = formkit.helpLong;
+    json.suffixIcon = 'help';
+    json.onSuffixIconClick = '$showHelpLong';
+  }
 
   if (formkit.if) {
     json.if = `$get(${formkit.ifInput}).value == '${formkit.ifValue}'`
   }
 
   if (formkit.type == 'select' || formkit.type == 'radio' || formkit.type == 'checkbox') {
-    json.options = {};
+    json.options = [];
     for (const option of formkit.options.filter(option => option.key || option.value)) {
-      json.options[option.key] = option.value;
+      json.options.push({value: option.key, label: option.value});
     }
     
     if (json.validation != '') json.validation += `|`;
