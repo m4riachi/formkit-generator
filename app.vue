@@ -42,9 +42,15 @@
                       <input type="text" id="help" v-model="formkit.help" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
                     </div>
 
-                    <div class="col-span-4 sm:col-span-4">
+                    <div class="col-span-4 sm:col-span-4 min-h-[300px] mb-12">
                       <label for="help" class="block text-sm font-medium text-gray-700">Help Long</label>
-                      <input type="text" id="help" v-model="formkit.help" class="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-gray-900 sm:text-sm" />
+                      <QuillEditor
+                          content-type="html"
+                          content=""
+                          theme="snow"
+                          class="max-h-[300px]"
+                          @update:content="quillContentChange"
+                      />
                     </div>
 
                     <div class="col-span-4 sm:col-span-4">
@@ -121,6 +127,8 @@
 </template>
 
 <script setup>
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { Delta, QuillEditor } from '@vueup/vue-quill';
 const inputTypes = [
   'text',
   'textarea',
@@ -259,5 +267,9 @@ const copyToClipboard = async (text) =>  {
   } catch (err) {
     console.error('Failed to copy: ', err);
   }
+}
+
+const quillContentChange = (delta, oldDelta, source) => {
+  formkit.helpLong = delta;
 }
 </script>
